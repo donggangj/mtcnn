@@ -28,6 +28,7 @@
 # (https://github.com/davidsandberg/facenet/)
 # It has been rebuilt from scratch, taking the David Sandberg's implementation as a reference.
 #
+import os.path
 
 import cv2
 import numpy as np
@@ -340,6 +341,16 @@ class MTCNN(object):
             img_y = np.transpose(img_x, (0, 2, 1, 3))
 
             out = self._pnet.predict(img_y)
+            onnx_path = 'mtcnn-p_96x96.onnx'
+            if not os.path.exists(onnx_path):
+                import tensorflow as tf
+                import tf2onnx
+                spec = (tf.TensorSpec((None, 96, 96, 3), tf.float32, name="scaled_image"),)
+                model_proto, _ = tf2onnx.convert.from_keras(self._pnet,
+                                                            input_signature=spec,
+                                                            # inputs_as_nchw='nhwc',
+                                                            opset=15,
+                                                            output_path=onnx_path)
 
             out0 = np.transpose(out[0], (0, 2, 1, 3))
             out1 = np.transpose(out[1], (0, 2, 1, 3))

@@ -35,7 +35,7 @@ class NetworkFactory:
         if input_shape is None:
             input_shape = (None, None, 3)
 
-        p_inp = Input(input_shape)
+        p_inp = Input(input_shape, name='scaled_image')
 
         p_layer = Conv2D(10, kernel_size=(3, 3), strides=(1, 1), padding="valid")(p_inp)
         p_layer = PReLU(shared_axes=[1, 2])(p_layer)
@@ -48,9 +48,9 @@ class NetworkFactory:
         p_layer = PReLU(shared_axes=[1, 2])(p_layer)
 
         p_layer_out1 = Conv2D(2, kernel_size=(1, 1), strides=(1, 1))(p_layer)
-        p_layer_out1 = Softmax(axis=3)(p_layer_out1)
+        p_layer_out1 = Softmax(axis=3, name='cls_prob')(p_layer_out1)
 
-        p_layer_out2 = Conv2D(4, kernel_size=(1, 1), strides=(1, 1))(p_layer)
+        p_layer_out2 = Conv2D(4, kernel_size=(1, 1), strides=(1, 1), name='bbox_pred')(p_layer)
 
         p_net = Model(p_inp, [p_layer_out2, p_layer_out1])
 
